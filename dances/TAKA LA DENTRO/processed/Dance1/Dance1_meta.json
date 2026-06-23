@@ -1,0 +1,10 @@
+{
+  "dance_name": "TAKA LA DENTRO",
+  "clip_name": "Dance1",
+  "pose_estimator": "mediapipe",
+  "total_frames": 451,
+  "detected_frames": 450,
+  "detection_rate": 0.9978,
+  "fps": 30,
+  "flagged": false
+}

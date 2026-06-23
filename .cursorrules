@@ -1,0 +1,109 @@
+# otto-dance-pipeline — Cursor persistent context
+
+## Project goal
+Convert TikTok dance videos into Unitree G1 humanoid robot motion files.
+Pipeline: MP4 input → pose estimation → joint angle extraction → G1 JSON output.
+
+## Target output format
+All motion files must be valid JSON matching this schema exactly:
+{
+  "MotionSwitcherClient": {
+    "name": "<dance_name>",
+    "fps": 30,
+    "frames": [
+      {
+        "time": 0.0,
+        "joint_positions": {
+          "kLeftHipPitch": 0.0,
+          ... (all 29 joints below, values in radians)
+        }
+      }
+    ]
+  }
+}
+
+## All 29 joint keys (must appear in every frame, no extras, no omissions):
+kLeftHipPitch, kLeftHipRoll, kLeftHipYaw,
+kLeftKnee,
+kLeftAnklePitch, kLeftAnkleRoll,
+kRightHipPitch, kRightHipRoll, kRightHipYaw,
+kRightKnee,
+kRightAnklePitch, kRightAnkleRoll,
+kWaistYaw, kWaistRoll, kWaistPitch,
+kLeftShoulderPitch, kLeftShoulderRoll, kLeftShoulderYaw,
+kLeftElbow,
+kLeftWristRoll, kLeftWristPitch, kLeftWristYaw,
+kRightShoulderPitch, kRightShoulderRoll, kRightShoulderYaw,
+kRightElbow,
+kRightWristRoll, kRightWristPitch, kRightWristYaw
+
+## Joint limits (radians) — hard clamp all output angles to these ranges:
+JOINT_LIMITS = {
+    "kLeftShoulderPitch":  (-3.14, 2.53),
+    "kLeftShoulderRoll":   (-0.09, 2.53),
+    "kLeftShoulderYaw":    (-1.57, 1.57),
+    "kLeftElbow":          (-1.57, 0.0),
+    "kLeftWristRoll":      (-1.57, 1.57),
+    "kLeftWristPitch":     (-0.87, 0.52),
+    "kLeftWristYaw":       (-1.57, 1.57),
+    "kRightShoulderPitch": (-3.14, 2.53),
+    "kRightShoulderRoll":  (-2.53, 0.09),
+    "kRightShoulderYaw":   (-1.57, 1.57),
+    "kRightElbow":         (0.0, 1.57),
+    "kRightWristRoll":     (-1.57, 1.57),
+    "kRightWristPitch":    (-0.87, 0.52),
+    "kRightWristYaw":      (-1.57, 1.57),
+    "kLeftHipPitch":       (-1.75, 2.09),
+    "kLeftHipRoll":        (-0.09, 0.79),
+    "kLeftHipYaw":         (-0.79, 0.79),
+    "kLeftKnee":           (-0.09, 2.09),
+    "kLeftAnklePitch":     (-0.87, 0.52),
+    "kLeftAnkleRoll":      (-0.44, 0.44),
+    "kRightHipPitch":      (-1.75, 2.09),
+    "kRightHipRoll":       (-0.79, 0.09),
+    "kRightHipYaw":        (-0.79, 0.79),
+    "kRightKnee":          (-0.09, 2.09),
+    "kRightAnklePitch":    (-0.87, 0.52),
+    "kRightAnkleRoll":     (-0.44, 0.44),
+    "kWaistYaw":           (-0.52, 0.52),
+    "kWaistRoll":          (-0.2, 0.2),
+    "kWaistPitch":         (-0.52, 0.52),
+}
+
+## File map
+extract_pose.py   — Phase 1: single video → keyframes JSON + pose overlay video
+process_dance.py  — Phase 2: batch runner over all clips in a dance folder
+average_dance.py  — Phase 3: circular mean across clips → canonical motion file
+pipeline_config.yaml — all tunable constants, no hardcoding allowed
+
+## Folder structure enforced by the pipeline:
+dances/
+  {dance_name}/
+    raw/               # user drops .mp4 files here
+    processed/
+      {clip_name}/
+        {clip_name}_original.mp4
+        {clip_name}_pose.mp4
+        {clip_name}_keyframes.json
+    averaged/
+      {dance_name}_averaged.json
+      {dance_name}_confidence.json
+
+## Style rules
+- Python 3.10+, type hints on all function signatures
+- f-strings only, no .format() or % formatting
+- Print prefixes: [POSE] in extract_pose.py, [BATCH] in process_dance.py, [AVG] in average_dance.py
+- No print spam in frame loops — use tqdm progress bars
+- All constants loaded from pipeline_config.yaml, never hardcoded
+- Comments in plain English, concise
+- No em dashes in comments or docstrings
+
+## What is NOT built yet (do not generate code for these)
+- Phase 4: Isaac Sim playback
+- Phase 5: config-driven adjustment loop
+- Phase 6: real robot deployment
+
+## Pose estimator priority
+1. ViTPose via mmpose (preferred)
+2. MediaPipe Holistic (fallback)
+Active estimator is recorded in pipeline_config.yaml under `pose_estimator`.

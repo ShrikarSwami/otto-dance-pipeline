@@ -1,0 +1,14 @@
+# Video files are large and stay local
+*.mp4
+*.mov
+*.avi
+*.webm
+*.mkv
+
+__pycache__/
+*.pyc
+.DS_Store
+*.egg-info/
+dist/
+build/
+.env

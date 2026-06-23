@@ -1,0 +1,10 @@
+{
+  "dance_name": "TBH",
+  "clip_name": "HJ",
+  "pose_estimator": "mediapipe",
+  "total_frames": 441,
+  "detected_frames": 440,
+  "detection_rate": 0.9977,
+  "fps": 30,
+  "flagged": false
+}

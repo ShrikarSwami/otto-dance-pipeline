@@ -1,0 +1,10 @@
+{
+  "dance_name": "TAKA LA DENTRO",
+  "clip_name": "ArthurLima1",
+  "pose_estimator": "mediapipe",
+  "total_frames": 453,
+  "detected_frames": 451,
+  "detection_rate": 0.9956,
+  "fps": 30,
+  "flagged": false
+}

@@ -1,0 +1,16 @@
+pose_estimator: mediapipe
+mediapipe_model: heavy          # lite | full | heavy (heavy = most accurate)
+mediapipe_delegate: gpu         # gpu | cpu (gpu uses Metal on Apple Silicon)
+confidence_threshold: 0.5    # keypoint confidence below this = frame flagged
+detection_rate_min: 0.70     # clips below this % are flagged in batch processing
+target_fps: 30               # all output motion files at 30fps
+min_clips_for_average: 3     # Phase 3 minimum
+
+smoothing:
+  enabled: true
+  window_frames: 5           # Savitzky-Golay smoothing window for angle time series
+  poly_order: 3              # polynomial order for smoothing
+
+angle_conversion:
+  method: bone_vector        # parent-child limb angle decomposition
+  reference_frame: torso     # use torso plane as reference for shoulder/hip angles
